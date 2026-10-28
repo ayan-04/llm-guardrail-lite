@@ -288,7 +288,7 @@ Follow-up: Why not block if the output is similar to the system prompt? Similari
 
 ### 45. Why are the corpus numbers optimistic?
 
-The measured line was precision 1.0000, recall 1.0000, and false-positive rate 0.0000 on 43 malicious and 45 benign samples, with tp 43, fp 0, tn 45, and fn 0. The same author wrote the rules and the samples, including the hard negatives. Two `documented_miss` rows are benign paraphrases the rules allow, and that category measured flagged=0. A stranger's wording would score worse. The README says these are not a real-world benchmark.
+The design-corpus line was precision 1.0000, recall 1.0000, and false-positive rate 0.0000 on 43 malicious and 45 benign samples, with tp 43, fp 0, tn 45, and fn 0. The same author wrote the rules and those samples. The held-out line, from sentences that are not in that file and that did not cause any rule edit, was precision 1.0000, recall 0.2000, and false-positive rate 0.0000 on 30 malicious and 30 benign samples, with tp 6, fp 0, tn 30, and fn 24. Quote the held-out recall when someone asks about new wording. Neither number is a real-world benchmark.
 
 Follow-up: What floors does the test enforce? It requires at least 40 malicious and 40 benign, precision and recall at least 0.9, and false-positive rate at most 0.1. Those floors are the test's bar. The measured line is the result.
 
@@ -338,7 +338,7 @@ Follow-up: What did you change, and what test locked the change in?
 
 The scanner missed because the text did not match a rule. Flag and block are the only detections. I would show the rule table, the missed string, and the corpus caveat, and I would not quote the 1.0000 recall figure as production performance.
 
-Follow-up: What number are you willing to quote? Only the measured line, labeled as the small local test corpus, plus the statement that it is optimistic.
+Follow-up: What number are you willing to quote? The design-corpus line and the held-out line, each labeled with the set it came from. For new wording, quote the held-out recall of 0.2000. Neither line is production performance.
 
 ### 54. What is the trust boundary around the audit log?
 

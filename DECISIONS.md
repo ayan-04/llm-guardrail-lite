@@ -104,6 +104,12 @@ Defaults chosen while building llm-guardrail-lite. Each entry is one choice.
 - Choice: `explain` prints the running score, `report` prints per-category corpus counts, and `audit` prints redacted JSONL lines.
 - Reason: a reader can follow one decision without opening the scanner. The report numbers in the README are copied from a pytest run.
 
+## Held-out evaluation does not change the rules
+
+- Options considered: grow the design corpus until recall stays high, tune the regexes after seeing the new sentences, or score a separate file and leave the rules frozen.
+- Choice: `tests/data/heldout.json` is scored by the existing table. The test checks that none of its sentences appear in the design corpus. It prints `MEASURED_HELDOUT` and does not require the 0.9 recall floor used by the design corpus.
+- Reason: a perfect score on sentences written for the patterns is not evidence about new wording. The held-out recall is allowed to be low, and the README quotes the run instead of hiding it.
+
 ## Documented misses stay in the corpus
 
 - Options considered: keep only samples the rules catch, or also keep wording the rules allow.

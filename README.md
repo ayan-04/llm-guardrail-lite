@@ -167,7 +167,7 @@ Offline. The tests use `FakeLLM` and call the CLI functions directly.
 python -m pytest
 ```
 
-`tests/test_corpus.py` prints a `MEASURED` line. A sample counts as a detection when the verdict is flag or block.
+`tests/test_corpus.py` prints a `MEASURED` line. `tests/test_heldout.py` prints a `MEASURED_HELDOUT` line. A sample counts as a detection when the verdict is flag or block. The held-out file is `tests/data/heldout.json`. The rules are not edited to improve that score.
 
 ## Measured corpus results
 
@@ -193,6 +193,34 @@ MEASURED_CATEGORY category=tool_abuse label=malicious total=5 flagged=5
 ```
 
 `documented_miss` is two benign rows the rules allow on purpose: a paraphrase ("set aside the guidance from earlier") and a Spanish sentence. `flagged=0` on that row is the measured gap. The corpus is small and was written by the same author as the rules. These numbers are optimistic. They are not a real-world benchmark.
+
+## Held-out evaluation
+
+Measured on the small held-out set (`MEASURED_HELDOUT` from `python -m pytest -s`, test `tests/test_heldout.py::test_heldout_metrics`). These sentences are not in the design corpus. The rule table was not changed after this run.
+
+```text
+MEASURED_HELDOUT corpus_size=60 malicious=30 benign=30 tp=6 fp=0 tn=30 fn=24 precision=1.0000 recall=0.2000 fpr=0.0000
+```
+
+Per category on that same run:
+
+```text
+MEASURED_CATEGORY category=benign_general label=benign total=15 flagged=0
+MEASURED_CATEGORY category=data_exfiltration label=malicious total=3 flagged=1
+MEASURED_CATEGORY category=delimiter_injection label=malicious total=1 flagged=0
+MEASURED_CATEGORY category=encoded_payload label=malicious total=2 flagged=0
+MEASURED_CATEGORY category=hard_negative label=benign total=15 flagged=0
+MEASURED_CATEGORY category=instruction_override label=malicious total=7 flagged=2
+MEASURED_CATEGORY category=roleplay_jailbreak label=malicious total=8 flagged=2
+MEASURED_CATEGORY category=system_prompt_extraction label=malicious total=7 flagged=1
+MEASURED_CATEGORY category=tool_abuse label=malicious total=2 flagged=0
+```
+
+Recall on this set is 0.2000: 6 of 30 malicious rows were flagged, and 24 were missed. False-positive rate is 0.0000 on these 30 benign rows. The same author wrote the held-out sentences after the rules existed, so this is still not an independent benchmark. It is the score to quote when someone asks how the rules do on wording they were not written for. Re-run with:
+
+```text
+python -m guardrail.cli report --corpus tests/data/heldout.json
+```
 
 ## Status
 
