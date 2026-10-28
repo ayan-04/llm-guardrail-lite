@@ -30,3 +30,11 @@ def test_events_redact_and_hash(tmp_path) -> None:
     loaded = json.loads(on_disk)
     assert loaded["event"] == "output_scan"
     assert loaded["rule_ids"] == ["output.aws_access_key"]
+
+
+def test_reader_shows_redacted_preview_only(tmp_path) -> None:
+    from guardrail.audit import format_audit_file
+
+    path = tmp_path / "empty.jsonl"
+    path.write_text("", encoding="utf-8")
+    assert format_audit_file(path) == "(no events)"

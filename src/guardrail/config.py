@@ -43,8 +43,20 @@ class GuardrailConfig(BaseModel):
     canary_token: str = ""
     redaction_token: str = "[REDACTED]"
 
+    # Empty means every rule in the table is active. A non-empty list is
+    # the only set that can fire, so a fresher can turn one rule off and
+    # watch that category drop out of the score.
+    enabled_rules: list[str] = Field(default_factory=list)
+
     @model_validator(mode="after")
     def _thresholds_in_order(self) -> "GuardrailConfig":
         if self.flag_threshold > self.block_threshold:
             raise ValueError("flag_threshold must be less than or equal to block_threshold")
+        if self.enabled_rules:
+            from guardrail.rules import RULES
+
+            known = {rule.id for rule in RULES}
+            unknown = [rule_id for rule_id in self.enabled_rules if rule_id not in known]
+            if unknown:
+                raise ValueError("unknown rule id: " + ", ".join(unknown))
         return self

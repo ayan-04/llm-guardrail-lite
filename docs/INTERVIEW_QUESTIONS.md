@@ -110,7 +110,7 @@ Follow-up: What does a clean-path test assert about the prompt? The canary and t
 
 ### 16. What is in the corpus?
 
-`tests/data/corpus.json` holds labeled samples with id, text, label, and category. The measured run had 43 malicious and 43 benign. Labels are `malicious` or `benign`. Benign rows include hard negatives.
+`tests/data/corpus.json` holds labeled samples with id, text, label, and category. The measured run had 43 malicious and 45 benign. Labels are `malicious` or `benign`. Benign rows include hard negatives and two documented misses.
 
 Follow-up: What is a hard negative here? Benign text that shares words with an attack, such as "Ignore the noise in this dataset" or "The previous instructions in the manual say to restart."
 
@@ -288,7 +288,7 @@ Follow-up: Why not block if the output is similar to the system prompt? Similari
 
 ### 45. Why are the corpus numbers optimistic?
 
-The measured line was precision 1.0000, recall 1.0000, and false-positive rate 0.0000 on 43 malicious and 43 benign samples, with tp 43, fp 0, tn 43, and fn 0. The same author wrote the rules and the samples, including the hard negatives. A stranger's wording would score worse. The README says these are not a real-world benchmark.
+The measured line was precision 1.0000, recall 1.0000, and false-positive rate 0.0000 on 43 malicious and 45 benign samples, with tp 43, fp 0, tn 45, and fn 0. The same author wrote the rules and the samples, including the hard negatives. Two `documented_miss` rows are benign paraphrases the rules allow, and that category measured flagged=0. A stranger's wording would score worse. The README says these are not a real-world benchmark.
 
 Follow-up: What floors does the test enforce? It requires at least 40 malicious and 40 benign, precision and recall at least 0.9, and false-positive rate at most 0.1. Those floors are the test's bar. The measured line is the result.
 

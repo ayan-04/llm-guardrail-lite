@@ -51,3 +51,41 @@ class AuditLog:
             with self.path.open("a", encoding="utf-8", newline="\n") as handle:
                 handle.write(json.dumps(record, sort_keys=True, ensure_ascii=True) + "\n")
         return record
+
+
+def read_audit(path: Path) -> list[dict[str, object]]:
+    """Load JSONL events. Missing files raise FileNotFoundError."""
+    text = path.read_text(encoding="utf-8")
+    records: list[dict[str, object]] = []
+    for line in text.splitlines():
+        if not line.strip():
+            continue
+        payload = json.loads(line)
+        if not isinstance(payload, dict):
+            raise ValueError("audit line is not an object")
+        records.append(payload)
+    return records
+
+
+def format_audit_file(path: Path) -> str:
+    """One plain line per event: time, name, verdict, rule ids, preview.
+
+    The preview is whatever the writer stored. This reader does not put
+    the original content back.
+    """
+    records = read_audit(path)
+    if not records:
+        return "(no events)"
+    lines: list[str] = []
+    for record in records:
+        rule_ids = record.get("rule_ids") or []
+        if isinstance(rule_ids, list) and rule_ids:
+            rules = ",".join(str(item) for item in rule_ids)
+        else:
+            rules = "(none)"
+        lines.append(
+            f"{record.get('ts', '')} event={record.get('event', '')} "
+            f"verdict={record.get('verdict', '')} rules={rules} "
+            f"preview={record.get('content_preview', '')}"
+        )
+    return "\n".join(lines)

@@ -1,0 +1,16 @@
+{
+  "flag_threshold": 3.0,
+  "block_threshold": 6.0,
+  "max_input_chars": 8000,
+  "max_context_chars": 16000,
+  "max_output_chars": 8000,
+  "base64_min_length": 40,
+  "base64_weight": 3.0,
+  "tool_allowlist": ["search", "calculator", "get_time"],
+  "tool_call_budget": 8,
+  "url_scheme_allowlist": ["https"],
+  "url_host_allowlist": [],
+  "canary_token": "",
+  "redaction_token": "[REDACTED]",
+  "enabled_rules": []
+}

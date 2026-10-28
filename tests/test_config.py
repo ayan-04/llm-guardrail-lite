@@ -14,11 +14,17 @@ def test_defaults() -> None:
     assert config.url_host_allowlist == []
     assert config.tool_call_budget == 8
     assert config.canary_token == ""
+    assert config.enabled_rules == []
 
 
 def test_flag_above_block_is_rejected() -> None:
     with pytest.raises(ValidationError):
         GuardrailConfig(flag_threshold=8.0, block_threshold=6.0)
+
+
+def test_unknown_rule_id_is_rejected() -> None:
+    with pytest.raises(ValidationError):
+        GuardrailConfig(enabled_rules=["not.a.rule"])
 
 
 def test_unknown_field_is_rejected() -> None:

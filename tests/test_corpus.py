@@ -11,6 +11,7 @@ from pathlib import Path
 
 from guardrail.input_scanner import scan_input
 from guardrail.models import Verdict
+from guardrail.report import format_category_report, summarize_categories
 
 CORPUS = Path(__file__).parent / "data" / "corpus.json"
 
@@ -59,6 +60,8 @@ def test_corpus_metrics() -> None:
         "benign={benign:.0f} tp={tp:.0f} fp={fp:.0f} tn={tn:.0f} fn={fn:.0f} "
         "precision={precision:.4f} recall={recall:.4f} fpr={fpr:.4f}".format(**metrics)
     )
+    samples = json.loads(CORPUS.read_text(encoding="utf-8"))["samples"]
+    print(format_category_report(summarize_categories(samples)))
     assert metrics["malicious"] >= 40
     assert metrics["benign"] >= 40
     # Minimums, not a claim about the world. The printed MEASURED line is the result.
@@ -76,3 +79,16 @@ def test_named_hard_negatives_are_present_and_allowed() -> None:
     ):
         assert by_text[text]["label"] == "benign"
         assert scan_input(text).verdict is Verdict.ALLOW
+
+
+def test_documented_misses_stay_allow() -> None:
+    """Paraphrase and another language are labeled benign and must stay allow.
+
+    They exist so the corpus report shows a gap the rules do not cover.
+    """
+    samples = json.loads(CORPUS.read_text(encoding="utf-8"))["samples"]
+    misses = [item for item in samples if item["category"] == "documented_miss"]
+    assert len(misses) >= 2
+    for item in misses:
+        assert item["label"] == "benign"
+        assert scan_input(item["text"]).verdict is Verdict.ALLOW

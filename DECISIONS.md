@@ -86,6 +86,36 @@ Defaults chosen while building llm-guardrail-lite. Each entry is one choice.
 - Choice: a token of at least 40 base64-alphabet characters adds one finding at `base64_weight` (default 3.0). The finding stores the count, not the characters.
 - Reason: the blob might be the secret. Decoding it would mean running attacker-controlled bytes. Long hex strings match this pattern too, which is a known source of flags.
 
+## Empty enabled_rules means the whole table
+
+- Options considered: a deny-list of rule ids, or an allow-list that is empty until filled.
+- Choice: `enabled_rules` defaults to empty, and empty means every rule can fire. A non-empty list is the only set that scores. Unknown ids fail validation.
+- Reason: a fresher can turn one rule off and re-run the corpus without editing `rules.py`. An empty allow-list that meant "score nothing" would surprise anyone who never set the field.
+
+## JSON config file
+
+- Options considered: environment variables, a custom text format, or one JSON object validated by `GuardrailConfig`.
+- Choice: `load_config` reads a JSON object and passes it through the same Pydantic model. CLI threshold flags override the file. `examples/config.json` is the default set.
+- Reason: the file cannot express a setting the code does not already have, and a bad threshold still fails the model check.
+
+## Explain, report, and audit commands
+
+- Options considered: only the JSON `scan` output, or extra commands that print the same data as lines.
+- Choice: `explain` prints the running score, `report` prints per-category corpus counts, and `audit` prints redacted JSONL lines.
+- Reason: a reader can follow one decision without opening the scanner. The report numbers in the README are copied from a pytest run.
+
+## Documented misses stay in the corpus
+
+- Options considered: keep only samples the rules catch, or also keep wording the rules allow.
+- Choice: two benign `documented_miss` rows, a paraphrase and a Spanish sentence, must stay `allow`.
+- Reason: a perfect score on samples written for the rules hides the gap. The category line shows flagged=0 for those rows.
+
+## Docker runs the CLI only
+
+- Options considered: an image that starts a web server, or an image whose entrypoint is the CLI.
+- Choice: `python:3.11-slim`, install `requirements.txt`, copy `src` and `examples`, set `PYTHONPATH`, and use the CLI as the entrypoint.
+- Reason: the library has no server and no model client. The image should not pretend otherwise. The requirements file includes pytest because that is the pinned file this repo already installs.
+
 ## Standard library besides Pydantic
 
 - Options considered: an HTTP client, an LLM SDK, or the standard library plus Pydantic.

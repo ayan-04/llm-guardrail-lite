@@ -32,7 +32,10 @@ def scan_input(text: str, config: GuardrailConfig | None = None) -> ScanResult:
         working = working[: cfg.max_input_chars]
 
     normalized = normalize(working, base64_min_length=cfg.base64_min_length)
+    active = set(cfg.enabled_rules)
     for rule, pattern in compiled_rules():
+        if active and rule.id not in active:
+            continue
         match = pattern.search(normalized.text)
         if match is None:
             continue
